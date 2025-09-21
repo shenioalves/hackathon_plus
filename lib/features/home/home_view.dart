@@ -29,7 +29,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 15), () {
+    _timer = Timer(const Duration(seconds: 12), () {
       if (mounted) {
         setState(() {
           mostrarContainer.value = true;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hackathon_plus/game/view/dino_game_view.dart';
+import 'package:hackathon_plus/features/game/view/dino_game_view.dart';
 
 void main() => runApp(const MyApp());
 

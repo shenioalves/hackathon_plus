@@ -1,9 +1,10 @@
 // lib/game/game_controller.dart
 
 import 'package:flutter/material.dart';
-import 'package:hackathon_plus/game/controller/gamer_config.dart';
-import 'package:hackathon_plus/game/models.dart';
+import 'package:hackathon_plus/features/game/controller/gamer_config.dart';
 import 'dart:math';
+
+import 'package:hackathon_plus/features/game/models.dart';
 
 class GameController extends ChangeNotifier {
   final GameConfig config;
@@ -60,9 +61,10 @@ class GameController extends ChangeNotifier {
     currentSpeed =
         config.initialGameSpeed + (score * config.speedIncreaseFactor);
 
-    dino.velocity += dino.isFloating && dino.y < 0
-        ? config.gravity * config.floatingGravityFactor
-        : config.gravity;
+    dino.velocity +=
+        dino.isFloating && dino.y < 0
+            ? config.gravity * config.floatingGravityFactor
+            : config.gravity;
     dino.y += dino.velocity;
     if (dino.y > 0) {
       dino.y = 0;

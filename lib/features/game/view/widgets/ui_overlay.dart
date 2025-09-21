@@ -1,7 +1,7 @@
 // lib/widgets/ui_overlay.dart
 
 import 'package:flutter/material.dart';
-import 'package:hackathon_plus/game/controller/game_controller.dart';
+import 'package:hackathon_plus/features/game/controller/game_controller.dart';
 
 class UiOverlay extends StatelessWidget {
   final GameController controller;

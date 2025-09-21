@@ -1,8 +1,8 @@
 // lib/widgets/game_area.dart
 
 import 'package:flutter/material.dart';
-import 'package:hackathon_plus/game/controller/game_controller.dart';
-import 'package:hackathon_plus/game/controller/gamer_config.dart';
+import 'package:hackathon_plus/features/game/controller/game_controller.dart';
+import 'package:hackathon_plus/features/game/controller/gamer_config.dart';
 
 class GameArea extends StatelessWidget {
   final GameController controller;

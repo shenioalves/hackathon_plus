@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_plus/features/game/controller/game_controller.dart';
 // Verifique se estes caminhos de importação correspondem à sua estrutura de projeto.
-import '../../../game/controller/game_controller.dart';
 import '../controller/gamer_config.dart';
 import 'widgets/game_area.dart';
 import 'widgets/ui_overlay.dart';
@@ -82,8 +82,9 @@ class _DinoGameScreenState extends State<DinoGameScreen>
                   // AnimatedBuilder escuta o controller e reconstrói a área de jogo.
                   child: AnimatedBuilder(
                     animation: _gameController!,
-                    builder: (context, child) =>
-                        GameArea(controller: _gameController!),
+                    builder:
+                        (context, child) =>
+                            GameArea(controller: _gameController!),
                   ),
                 ),
                 Expanded(
@@ -99,8 +100,8 @@ class _DinoGameScreenState extends State<DinoGameScreen>
             // Camada 2: UI (pontos, game over, etc.)
             AnimatedBuilder(
               animation: _gameController!,
-              builder: (context, child) =>
-                  UiOverlay(controller: _gameController!),
+              builder:
+                  (context, child) => UiOverlay(controller: _gameController!),
             ),
           ],
         ),

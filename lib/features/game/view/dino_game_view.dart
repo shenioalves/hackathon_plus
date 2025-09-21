@@ -82,9 +82,8 @@ class _DinoGameScreenState extends State<DinoGameScreen>
                   // AnimatedBuilder escuta o controller e reconstrói a área de jogo.
                   child: AnimatedBuilder(
                     animation: _gameController!,
-                    builder:
-                        (context, child) =>
-                            GameArea(controller: _gameController!),
+                    builder: (context, child) =>
+                        GameArea(controller: _gameController!),
                   ),
                 ),
                 Expanded(
@@ -100,23 +99,67 @@ class _DinoGameScreenState extends State<DinoGameScreen>
             // Camada 2: UI (pontos, game over, etc.)
             AnimatedBuilder(
               animation: _gameController!,
-              builder:
-                  (context, child) => UiOverlay(controller: _gameController!),
+              builder: (context, child) =>
+                  UiOverlay(controller: _gameController!),
             ),
 
-            Align(
-              alignment: Alignment.topLeft,
-              child: SafeArea(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(context, false);
-                    },
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                        ),
+                      ),
+                      Spacer(),
+                      Container(
+                        height: 130 - 32,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF0061AC),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'SUA SENHA',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
+                            Text(
+                              'OZ-8576',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

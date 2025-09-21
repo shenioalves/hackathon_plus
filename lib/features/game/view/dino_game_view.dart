@@ -103,6 +103,24 @@ class _DinoGameScreenState extends State<DinoGameScreen>
               builder:
                   (context, child) => UiOverlay(controller: _gameController!),
             ),
+
+            Align(
+              alignment: Alignment.topLeft,
+              child: SafeArea(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

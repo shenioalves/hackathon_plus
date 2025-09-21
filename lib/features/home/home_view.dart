@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:hackathon_plus/features/game/view/dino_game_view.dart';
 import 'package:hackathon_plus/features/home/widgets/dotted_background.dart';
+
+enum CardAtivo { nenhum, sofa, raiox }
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -12,6 +17,11 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final TransformationController _controller = TransformationController();
+  ValueNotifier<bool> mostrarContainer = ValueNotifier(false);
+  bool mostrarBntJogo = false;
+  Timer? _timer;
+
+  ValueNotifier<CardAtivo> cardAtivo = ValueNotifier(CardAtivo.raiox);
 
   // tamanho do conteúdo
   final double size = 2000;
@@ -19,6 +29,15 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
+    _timer = Timer(const Duration(seconds: 15), () {
+      if (mounted) {
+        setState(() {
+          mostrarContainer.value = true;
+          mostrarBntJogo = true;
+        });
+        log('Container mostrado');
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenSize = MediaQuery.of(context).size;
 
@@ -30,21 +49,32 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  Future<void> abrirOutraTela() async {
+    _timer?.cancel();
+    // aqui aguardamos a tela abrir e receber o resultado no pop
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DinoGameScreen()),
+    );
+
+    // se a tela retornar algum valor, podemos atualizar mostrarContainer
+    if (resultado == false) {
+      setState(() {
+        mostrarContainer.value = false; // esconde o container
+        log('Container escondido após voltar');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _controller.value =
-              Matrix4.identity()
-                // ignore: deprecated_member_use
-                ..translate(
-                  (MediaQuery.of(context).size.width - size) / 2,
-                  (MediaQuery.of(context).size.height - size) / 2,
-                );
+          Navigator.pushNamed(context, '/gamer');
         },
-        backgroundColor: const Color(0xFF0061AC),
-        child: const Icon(Icons.center_focus_strong, color: Color(0xFFFFFFFF)),
+        backgroundColor: Color(0xFF4CD471),
+        child: const Icon(Icons.gamepad, color: Color(0xFFFFFFFF)),
       ),
       body: Column(
         children: [
@@ -291,19 +321,35 @@ class _HomeViewState extends State<HomeView> {
                     Positioned(
                       bottom: (size / 2) + 150,
                       right: (size / 2) - 240,
-                      child: Image.asset(
-                        'assets/images/cicle_raiox.png',
-                        width: 150,
-                        height: 150,
+                      child: GestureDetector(
+                        onTap: () {
+                          cardAtivo.value =
+                              cardAtivo.value == CardAtivo.raiox
+                                  ? CardAtivo.nenhum
+                                  : CardAtivo.raiox;
+                        },
+                        child: Image.asset(
+                          'assets/images/cicle_raiox.png',
+                          width: 150,
+                          height: 150,
+                        ),
                       ),
                     ),
                     Positioned(
                       bottom: size / 2,
                       left: size / 2 - 75,
-                      child: Image.asset(
-                        'assets/images/cicle_sala.png',
-                        width: 150,
-                        height: 150,
+                      child: GestureDetector(
+                        onTap: () {
+                          cardAtivo.value =
+                              cardAtivo.value == CardAtivo.sofa
+                                  ? CardAtivo.nenhum
+                                  : CardAtivo.sofa;
+                        },
+                        child: Image.asset(
+                          'assets/images/cicle_sala.png',
+                          width: 150,
+                          height: 150,
+                        ),
                       ),
                     ),
                     Positioned(
@@ -316,144 +362,266 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ),
 
-                    Positioned(
-                      bottom: size / 2 + 40,
-                      left: size / 2 - 205,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 4,
-                          bottom: 4,
-                          right: 16,
-                          left: 8,
-                        ),
-                        child: CustomPaint(
-                          painter: ChatBubblePainter(
-                            color: Colors.white,
-                            borderColor: Color(0xFFADADAD),
-                            isSender: true,
-                          ),
-                          child: Container(
-                            width: 165,
-                            height: 80,
-                            padding: const EdgeInsets.only(
-                              top: 8,
-                              bottom: 8,
-                              right: 10,
-                              left: 4,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Você está aqui',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF404446),
-                                  ),
-                                ),
-                                Text(
-                                  'Área de espera',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Color(0xFF979C9E),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    ValueListenableBuilder<CardAtivo>(
+                      valueListenable: cardAtivo,
+                      builder: (_, ativo, __) {
+                        if (ativo != CardAtivo.sofa)
+                          return const SizedBox.shrink();
 
-                    Positioned(
-                      bottom: size / 2 + 160,
-                      left: size / 2 - 170,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 4,
-                          bottom: 4,
-                          right: 16,
-                          left: 8,
-                        ),
-                        child: CustomPaint(
-                          painter: ChatBubblePainter(
-                            color: Colors.white,
-                            borderColor: Color(0xFF004F8C),
-                            isSender: true,
-                          ),
-                          child: Container(
-                            // width: 250,
-                            height: 150,
+                        return Positioned(
+                          bottom: size / 2 + 40,
+                          left: size / 2 - 205,
+                          child: Padding(
                             padding: const EdgeInsets.only(
-                              left: 12,
-                              bottom: 12,
+                              top: 4,
+                              bottom: 4,
                               right: 16,
+                              left: 8,
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Seu próximo atendimento',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF004F8C),
-                                  ),
+                            child: CustomPaint(
+                              painter: ChatBubblePainter(
+                                color: Colors.white,
+                                borderColor: Color(0xFFADADAD),
+                                isSender: true,
+                              ),
+                              child: Container(
+                                width: 165,
+                                height: 80,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 4,
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    //SizedBox(width: 8),
-                                    Image.asset(
-                                      'assets/images/raiox2.png',
-                                      width: 24,
-                                      height: 28,
-                                    ),
-                                    SizedBox(width: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
                                     Text(
-                                      'RAIO X',
+                                      'Você está aqui',
                                       style: TextStyle(
-                                        fontSize: 16,
-                                        color: Color(0xFF004F8C),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    //  SizedBox(width: 8),
-                                    Icon(
-                                      Icons.pin_drop,
-                                      size: 22,
-                                      color: Color(0xFF004F8C),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Sala Técnica • 2º andar',
-                                      style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
                                         color: Color(0xFF404446),
                                       ),
                                     ),
+                                    Text(
+                                      'Área de espera',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Color(0xFF979C9E),
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                Text(
-                                  'Previsão 17 min',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF23C16B),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
+                    ),
+
+                    ValueListenableBuilder<CardAtivo>(
+                      valueListenable: cardAtivo,
+                      builder: (_, ativo, __) {
+                        if (ativo != CardAtivo.raiox)
+                          return const SizedBox.shrink();
+                        return Positioned(
+                          bottom: size / 2 + 160,
+                          left: size / 2 - 170,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 4,
+                              bottom: 4,
+                              right: 16,
+                              left: 8,
+                            ),
+                            child: CustomPaint(
+                              painter: ChatBubblePainter(
+                                color: Colors.white,
+                                borderColor: Color(0xFF004F8C),
+                                isSender: true,
+                              ),
+                              child: Builder(
+                                builder: (context) {
+                                  return Container(
+                                    // width: 250,
+                                    height: 150,
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      bottom: 12,
+                                      right: 16,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'Seu próximo atendimento',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF004F8C),
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            //SizedBox(width: 8),
+                                            Image.asset(
+                                              'assets/images/raiox2.png',
+                                              width: 24,
+                                              height: 28,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'RAIO X',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xFF004F8C),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            //  SizedBox(width: 8),
+                                            Icon(
+                                              Icons.pin_drop,
+                                              size: 22,
+                                              color: Color(0xFF004F8C),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Sala Técnica • 2º andar',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xFF404446),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          'Previsão 17 min',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF23C16B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: mostrarContainer,
+                      builder: (context, mostrar, _) {
+                        return !mostrar
+                            ? SizedBox.shrink()
+                            : Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.9,
+
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFb9e0fe),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/person_sergio.png',
+                                          width: 50,
+                                        ),
+                                        Text(
+                                          "Dica do Sérgio",
+                                          style: TextStyle(
+                                            fontSize: 26,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF0061AC),
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Image.asset(
+                                          'assets/images/sesi.png',
+                                          width: 50,
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      "Quer passar o tempo? Tem um jogo muito divertido para você te esperando!",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF0061AC),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color(0xFF0061AC),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(28),
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            mostrarContainer.value = false;
+                                            await Navigator.pushNamed(
+                                              context,
+                                              '/gamer',
+                                            );
+                                          },
+                                          child: Text(
+                                            "Vamos lá!",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xFFFFFFFF),
+                                            ),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color(0xFFFFFFFF),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(28),
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            mostrarContainer.value = false;
+                                          },
+                                          child: Text(
+                                            "Não, obrigado",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xFF0061AC),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                      },
                     ),
                   ],
                 ),
